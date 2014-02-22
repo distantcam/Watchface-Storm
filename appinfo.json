@@ -1,0 +1,29 @@
+{
+    "versionLabel": "1.0",
+    "uuid": "67d502ad-9ebe-4103-a8d6-b459d7ca466c",
+    "appKeys": {},
+    "longName": "Storm",
+    "versionCode": 1,
+    "capabilities": [
+        ""
+    ],
+    "shortName": "Storm",
+    "companyName": "Cameron MacFarland",
+    "watchapp": {
+        "watchface": true
+    },
+    "resources": {
+        "media": [
+            {
+                "type": "font",
+                "name": "FONT_ROBOTOCONDENSED_LIGHT_18",
+                "file": "fonts/RobotoCondensed-Light.ttf"
+            },
+            {
+                "type": "font",
+                "name": "FONT_ROBOTOCONDENSED_BOLD_20",
+                "file": "fonts/RobotoCondensed-Bold.ttf"
+            }
+        ]
+    }
+}
