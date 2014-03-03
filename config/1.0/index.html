@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Storm</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="http://code.jquery.com/mobile/1.4.1/jquery.mobile-1.4.1.min.css">
+	<script src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
+	<script src="http://code.jquery.com/mobile/1.4.1/jquery.mobile-1.4.1.min.js"></script>
+	<script src="http://ajax.aspnetcdn.com/ajax/jquery.validate/1.11.1/jquery.validate.min.js"></script>
+	<style type="text/css">
+	
+	</style>
+</head>
+
+<body>
+	<div data-role="page" id="configuration">
+		<div data-role="header" id="header">
+			<button id="b-cancel" data-icon="delete" data-iconpos="left" data-inline="true" data-mini="true">Cancel</button>
+			<h1>Storm</h1>
+		</div>
+		<div role="main" class="ui-content">
+			<form id="configuration-form">
+				
+				<div class="ui-field-contain">
+					<label for="markers">Markers</label>
+					<input type="checkbox" data-role="flipswitch" name="markers" id="markers" data-on-text="On" data-off-text="Off" data-wrapper-class="markers-size-flipswitch">
+				</div>
+				<div class="ui-field-contain">
+					<label for="endlines">End Lines</label>
+					<input type="checkbox" data-role="flipswitch" name="endlines" id="endlines" data-on-text="On" data-off-text="Off" data-wrapper-class="endlines-size-flipswitch">
+				</div>
+				
+				<button id="b-submit" data-theme="b" data-icon="check" data-iconpos="right">Save</button>
+			</form>
+		</div>
+		<div data-role="footer" id="footer" data-position="fixed">
+			<h2>Powered by Pebble Autoconfig</h2>
+		</div>
+	</div>
+	<script type="text/javascript">	 
+		$().ready(function() {	  
+			var dictionary;
+			try {
+				dictionary = JSON.parse(localStorage['Storm']);
+			} catch(e) {
+				dictionary = {};
+			}
+			
+			
+			if(!dictionary.hasOwnProperty('markers')) {
+				dictionary['markers'] = true;
+			}
+			$('#markers').prop('checked', (dictionary['markers'])).flipswitch( "refresh" );
+			if(!dictionary.hasOwnProperty('endlines')) {
+				dictionary['endlines'] = false;
+			}
+			$('#endlines').prop('checked', (dictionary['endlines'])).flipswitch( "refresh" );
+		});
+		
+		// Handle different UI on i-devices
+		if( /iPhone|iPad|iPod/i.test(navigator.userAgent) ) {
+			$("#header").remove();
+		}
+		
+		$("form :input").on("keypress", function(e) {
+			return e.keyCode != 13;
+		});
+		
+		$("#configuration-form").validate({
+			rules: {
+				
+				
+			},
+			errorPlacement: function(error, element) {
+				error.insertAfter( element.parent() );
+			}
+		});
+
+		$('#b-submit').click(function() {
+			if (!$("#configuration-form").valid()) {
+				return false;
+			}
+			
+			var dictionary = {};
+			
+			dictionary['markers'] = ($('#markers').prop('checked') ? 1 : 0);
+			dictionary['endlines'] = ($('#endlines').prop('checked') ? 1 : 0);
+			
+			localStorage['Storm'] = JSON.stringify(dictionary);
+
+			var location = "pebblejs://close#" + encodeURIComponent(localStorage['Storm']);
+			window.location.href = location;
+		});
+	
+		$('#b-cancel').click(function() {
+			var location = "pebblejs://close#";
+			window.location.href = location;
+		});
+	</script>
+</body>
+</html>
