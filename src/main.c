@@ -1,4 +1,5 @@
 #include <pebble.h>
+#include "autoconfig.h"
 
 static Window *window;
 
@@ -68,9 +69,12 @@ void month_display_layer_update_callback(Layer *me, GContext* ctx) {
 
 	graphics_draw_arc(ctx, center, 42, 20, 0, angle);
 
-	//graphics_draw_line(ctx, GPoint(7, center.y), GPoint(20, center.y));
-	//graphics_draw_line(ctx, GPoint(124, center.y), GPoint(137, center.y));
+	if (getEndlines()) {
+		graphics_draw_line(ctx, GPoint(7, center.y), GPoint(20, center.y));
+		graphics_draw_line(ctx, GPoint(124, center.y), GPoint(137, center.y));
+	}
 
+	if (getMarkers())
 	for (int x = 0; x < 2; x++)
 	for (int y = 0; y < 2; y++)
 	{
@@ -98,18 +102,22 @@ void day_display_layer_update_callback(Layer *me, GContext* ctx) {
 
 	graphics_draw_arc(ctx, center, 62, 10, 0, angle);
 
-	//graphics_draw_line(ctx, GPoint(27, center.y), GPoint(50, center.y));
-	//graphics_draw_line(ctx, GPoint(94, center.y), GPoint(117, center.y));
+	if (getEndlines()) {
+		graphics_draw_line(ctx, GPoint(27, center.y), GPoint(50, center.y));
+		graphics_draw_line(ctx, GPoint(94, center.y), GPoint(117, center.y));
+	}
 
+	if (getMarkers())
 	for (int x = -1; x < 3; x++)
 	for (int y = -1; y < 3; y++)
 		if (x + y > -2 && x + y < 4 && x - y < 3 && y - x < 3)
 		{
-		graphics_draw_pixel(ctx, GPoint(center.x - 00 + x, center.y + 66 + y));
-		graphics_draw_pixel(ctx, GPoint(center.x - 47 + x, center.y + 47 + y));
-		graphics_draw_pixel(ctx, GPoint(center.x + 47 + x, center.y + 47 + y));
+			graphics_draw_pixel(ctx, GPoint(center.x - 00 + x, center.y + 66 + y));
+			graphics_draw_pixel(ctx, GPoint(center.x - 47 + x, center.y + 47 + y));
+			graphics_draw_pixel(ctx, GPoint(center.x + 47 + x, center.y + 47 + y));
 		}
 
+	if (getMarkers())
 	for (int x = 0; x < 2; x++)
 	for (int y = 0; y < 2; y++)
 	{
@@ -139,18 +147,22 @@ void hour_display_layer_update_callback(Layer *me, GContext* ctx) {
 
 	graphics_draw_arc(ctx, center, 62, 10, 180, angle);
 
-	//graphics_draw_line(ctx, GPoint(7, center.y), GPoint(20, center.y));
-	//graphics_draw_line(ctx, GPoint(124, center.y), GPoint(137, center.y));
+	if (getEndlines()) {
+		graphics_draw_line(ctx, GPoint(7, center.y), GPoint(20, center.y));
+		graphics_draw_line(ctx, GPoint(124, center.y), GPoint(137, center.y));
+	}
 
+	if (getMarkers())
 	for (int x = -1; x < 3; x++)
 	for (int y = -1; y < 3; y++)
 		if (x + y > -2 && x + y < 4 && x - y < 3 && y - x < 3)
 		{
-		graphics_draw_pixel(ctx, GPoint(center.x - 00 + x, center.y - 66 + y));
-		graphics_draw_pixel(ctx, GPoint(center.x - 47 + x, center.y - 47 + y));
-		graphics_draw_pixel(ctx, GPoint(center.x + 47 + x, center.y - 47 + y));
+			graphics_draw_pixel(ctx, GPoint(center.x - 00 + x, center.y - 66 + y));
+			graphics_draw_pixel(ctx, GPoint(center.x - 47 + x, center.y - 47 + y));
+			graphics_draw_pixel(ctx, GPoint(center.x + 47 + x, center.y - 47 + y));
 		}
 
+	if (getMarkers())
 	for (int x = 0; x < 2; x++)
 	for (int y = 0; y < 2; y++)
 	{
@@ -180,9 +192,12 @@ void minute_display_layer_update_callback(Layer *me, GContext* ctx) {
 
 	graphics_draw_arc(ctx, center, 42, 20, 180, angle);
 
-	//graphics_draw_line(ctx, GPoint(27, center.y), GPoint(50, center.y));
-	//graphics_draw_line(ctx, GPoint(94, center.y), GPoint(117, center.y));
+	if (getEndlines()) {
+		graphics_draw_line(ctx, GPoint(27, center.y), GPoint(50, center.y));
+		graphics_draw_line(ctx, GPoint(94, center.y), GPoint(117, center.y));
+	}
 
+	if (getMarkers())
 	for (int x = 0; x < 2; x++)
 	for (int y = 0; y < 2; y++)
 	{
@@ -223,7 +238,23 @@ void handle_tick(struct tm *tick_time, TimeUnits units_changed) {
 	update_text(tick_time);
 }
 
+static void in_received_handler(DictionaryIterator *iter, void *context) {
+	autoconfig_in_received_handler(iter, context);
+
+	time_t now = time(NULL);
+	struct tm *tick_time = localtime(&now);
+
+	handle_tick(tick_time, MONTH_UNIT);
+	handle_tick(tick_time, DAY_UNIT);
+	handle_tick(tick_time, HOUR_UNIT);
+	handle_tick(tick_time, MINUTE_UNIT);
+}
+
 void init(void) {
+	autoconfig_init();
+
+	app_message_register_inbox_received(in_received_handler);
+
 	window = window_create();
 	window_stack_push(window, true /* Animated */);
 	window_set_background_color(window, GColorBlack);
@@ -233,22 +264,22 @@ void init(void) {
 
 	month_display_layer = layer_create(windowFrame);
 	layer_set_update_proc(month_display_layer, month_display_layer_update_callback);
-  	layer_add_child(windowLayer, month_display_layer);
+	layer_add_child(windowLayer, month_display_layer);
 
-  	day_display_layer = layer_create(windowFrame);
+	day_display_layer = layer_create(windowFrame);
 	layer_set_update_proc(day_display_layer, day_display_layer_update_callback);
-  	layer_add_child(windowLayer, day_display_layer);
+	layer_add_child(windowLayer, day_display_layer);
 
-  	hour_display_layer = layer_create(windowFrame);
+	hour_display_layer = layer_create(windowFrame);
 	layer_set_update_proc(hour_display_layer, hour_display_layer_update_callback);
-  	layer_add_child(windowLayer, hour_display_layer);
+	layer_add_child(windowLayer, hour_display_layer);
 
-  	minute_display_layer = layer_create(windowFrame);
+	minute_display_layer = layer_create(windowFrame);
 	layer_set_update_proc(minute_display_layer, minute_display_layer_update_callback);
-  	layer_add_child(windowLayer, minute_display_layer);
+	layer_add_child(windowLayer, minute_display_layer);
 
-  	date_text_layer = text_layer_create(GRect(82,168/2-12,62,24));
-  	text_layer_set_text_color(date_text_layer, GColorWhite);
+	date_text_layer = text_layer_create(GRect(82,168/2-12,62,24));
+	text_layer_set_text_color(date_text_layer, GColorWhite);
 	text_layer_set_background_color(date_text_layer, GColorClear);
 	text_layer_set_text_alignment(date_text_layer, GTextAlignmentCenter);
 	text_layer_set_font(date_text_layer, fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_ROBOTOCONDENSED_LIGHT_18)));
@@ -262,7 +293,7 @@ void init(void) {
 	layer_add_child(windowLayer, text_layer_get_layer(time_text_layer));
 
 	time_t now = time(NULL);
-  	struct tm *tick_time = localtime(&now);
+	struct tm *tick_time = localtime(&now);
 
 	handle_tick(tick_time, MONTH_UNIT);
 	handle_tick(tick_time, DAY_UNIT);
@@ -286,6 +317,8 @@ void deinit(void) {
 	text_layer_destroy(time_text_layer);
 
 	window_destroy(window);
+
+	autoconfig_deinit();
 }
 
 int main(void) {

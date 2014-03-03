@@ -1,11 +1,14 @@
 {
     "versionLabel": "1.0",
     "uuid": "67d502ad-9ebe-4103-a8d6-b459d7ca466c",
-    "appKeys": {},
+    "appKeys": {
+        "markers": 0,
+        "endlines": 1    
+    },
     "longName": "Storm",
     "versionCode": 1,
     "capabilities": [
-        ""
+        "configurable"
     ],
     "shortName": "Storm",
     "companyName": "Cameron MacFarland",
@@ -25,5 +28,24 @@
                 "file": "fonts/RobotoCondensed-Bold.ttf"
             }
         ]
-    }
+    },
+    "preferences": {
+        "url" : "http://distantcam.github.io/Watchface-Storm/config/1.0/index.html",
+        "items": [{
+                "name": "markers",
+                "title": "Markers",
+                "type": "boolean",
+                "off-text": "Off",
+                "on-text": "On",
+                "default": true
+        },
+        {
+                "name": "endlines",
+                "title": "End Lines",
+                "type": "boolean",
+                "off-text": "Off",
+                "on-text": "On",
+                "default": false
+        }]
+}
 }
